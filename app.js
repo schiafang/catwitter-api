@@ -1,21 +1,23 @@
 if (process.env.NODE_ENV !== 'production') { require('dotenv').config() }
 
 const express = require('express')
-const bodyPaser = require('body-parser')
+const exphbs = require('express-handlebars')
+const bodyParser = require('body-parser')
 const session = require('express-session')
-const passport = require('./config/passport')
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
+app.set('view engine', 'handlebars')
 app.use(express.static('public'))
-app.use(bodyPaser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(session({ secret: process.env.SECRET, resave: false, saveUninitialized: false }))
-app.use(passport.initialize())
-app.use(passport.session())
 
 app.listen(PORT, () => console.log(`caTwitter is listening on port:${PORT}`))
 
-require('./routes')(app, passport)
+const passport = require('./config/passport')
 
-module.exports = app
+
+require('./routes')(app, passport)
