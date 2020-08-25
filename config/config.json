@@ -14,10 +14,11 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "catwitter_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "use_env_variable": "CLEARDB_DATABASE_URL",
+    "dialect": "postgres",
+    "protocol": "postgres",
+    "ssl": {
+      "rejectUnauthorized": false
+    }
   }
 }
