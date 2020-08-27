@@ -14,6 +14,7 @@ const userController = {
     const { account, name, email, password, checkPassword } = req.body
     const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
     const error = []
+
     if (!account || !name || !email || !password || !checkPassword) {
       error.push({ message: '所有欄位皆為必填' })
       return res.json({ status: 'error', message: error })
@@ -23,14 +24,16 @@ const userController = {
       return res.json({ status: 'error', message: error })
     }
 
-    User.findOne({ where: { $or: [{ email }, { account }] }, raw: true })
+    User.findOne({ where: { [Op.or]: [{ email }, { account }] }, raw: true })
       .then(user => {
+
         if (user) {
           if (user.email === email) { error.push({ message: 'Email已被註冊' }) }
           if (user.account === account) { error.push({ message: '帳號已被使用' }) }
           return res.json({ status: 'error', message: error })
         }
         if (!user) {
+          console.log(email)
           return User.create({ account, name, email, password: hashPassword })
             .then(() => res.json({ status: 'success', message: '註冊成功' }))
         }
@@ -63,7 +66,6 @@ const userController = {
       })
       .catch(error => console.log(error))
   },
-
   putUser: async (req, res) => {
     const id = req.params.id
     const { email: originalEmail, account: originalAccount } = req.user
@@ -128,6 +130,7 @@ const userController = {
   },
   getTweets: (req, res) => {
     const id = req.params.id
+    console.log(id)
     return User.findByPk(id, {
       include: [
         { model: Tweet, include: [Reply, { model: User, as: 'LikedUsers' },] },
@@ -141,7 +144,7 @@ const userController = {
         data.Tweets.forEach(t => {
           t.isLiked = t.LikedUsers.map(d => d.id).includes(req.user.id)
         })
-        data.isFollowed = helpers.getUser(req).Followings.map(item => item.id).includes(user.id)
+        data.isFollowed = req.user.Followings.map(item => item.id).includes(user.id)
 
         return res.json(data)
       })
@@ -160,7 +163,7 @@ const userController = {
         pageUser.dataValues.LikedTweets.forEach(t => {
           t.dataValues.isLiked = true
         })
-        pageUser.isFollowed = helpers.getUser(req).Followings.map(item => item.id).includes(pageUser.id)
+        pageUser.isFollowed = req.user.Followings.map(item => item.id).includes(pageUser.id)
         return pageUser
       })
       .then(data => res.json(data))
@@ -188,9 +191,9 @@ const userController = {
       .then(pageUser => {
         pageUser.dataValues.Replies.forEach(r => {
           r.dataValues.Tweet.dataValues.isLiked =
-            r.dataValues.Tweet.dataValues.LikedUsers.map(d => d.id).includes(helpers.getUser(req).id)
+            r.dataValues.Tweet.dataValues.LikedUsers.map(d => d.id).includes(req.user.id)
         })
-        pageUser.isFollowed = helpers.getUser(req).Followings.map(item => item.id).includes(pageUser.id)
+        pageUser.isFollowed = req.user.Followings.map(item => item.id).includes(pageUser.id)
         return pageUser
       })
       .then(data => res.json(data))
@@ -217,7 +220,7 @@ const userController = {
     }).then(user => {
       const Followers = user.Followers.map(follower => ({
         ...follower.dataValues,
-        isFollowed: helpers.getUser(req).Followings.map((i) => i.id).includes(follower.id)
+        isFollowed: req.user.Followings.map((i) => i.id).includes(follower.id)
       }))
       const results = {
         user,
@@ -229,7 +232,7 @@ const userController = {
   },
   addFollow: async (req, res) => {
     const followingId = Number(req.body.id)
-    const followerId = helpers.getUser(req).id
+    const followerId = req.user.id
 
     if (followerId === followingId) { return res.json({ status: 'error', message: '不能追蹤自己' }) }
 
@@ -238,7 +241,8 @@ const userController = {
   },
   removeFollow: async (req, res) => {
     const followingId = Number(req.params.id)
-    const followerId = helpers.getUser(req).id
+    const followerId = req.user.id
+    console.log(followerId)
 
     if (followerId === followingId) { return res.json({ status: 'error', message: '不能追蹤自己' }) }
 

@@ -1,0 +1,27 @@
+body {
+  background-color: rgb(196, 191, 191);
+}
+
+li {
+  list-style-type:none;
+  margin: 10px 0;
+}
+
+h4 {
+  color: rgb(223, 217, 217);
+}
+
+span {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.container {
+  padding: 50px;
+  width: 50%;
+  background-color: rgb(214, 110, 110);
+  height: 90vh;
+  margin-top: 5vh;
+  overflow-y: scroll;
+}

@@ -16,8 +16,9 @@ const tweetController = {
     }).then(tweets => {
       const data = tweets.map(t => ({
         ...t.dataValues,
-        isLiked: t.LikedUsers.map(i => i.id).includes(req.user.id)
+        isLiked: t.LikedUsers.map(i => i.id).includes(req.user.id),
       }))
+      data.user = req.user
       return res.json(data)
     })
   },
@@ -46,7 +47,7 @@ const tweetController = {
     }).then(tweet => {
       const data = {
         tweet: tweet.toJSON(),
-        isLiked: tweet.LikedUsers.map(d => d.id).includes(req.user.id)
+        // isLiked: tweet.LikedUsers.map(d => d.id).includes(req.user.id)
       }
       return res.json(data)
     })

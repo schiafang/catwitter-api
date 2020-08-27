@@ -21,6 +21,9 @@ module.exports = (app, passport) => {
     })(req, res, next)
   }
 
+  app.get('/', (req, res) => res.render('index'))
+
+
   app.post('/api/signup', userController.signUp)
   app.post('/api/signin', userController.signIn)
 
@@ -46,6 +49,6 @@ module.exports = (app, passport) => {
   app.get('/api/users/:id/followings', userAuthenticated, userController.getFollowings)
   app.get('/api/users/:id/followers', userAuthenticated, userController.getFollowers)
 
-  app.post('/followships', userAuthenticated, userController.addFollow)
-  app.delete('/followships/:id', userAuthenticated, userController.removeFollow)
+  app.post('/api/followships', userAuthenticated, userController.addFollow)
+  app.delete('/api/followships/:id', userAuthenticated, userController.removeFollow)
 }
